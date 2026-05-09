@@ -1,8 +1,8 @@
 package application;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -87,14 +87,14 @@ public class Login  {
 		{
 			usrName=txtUserName.getText();
 			String str2=pf.getText();
-			Statement stmt=null;
 			//new HomePage(login);
 			if (con!=null)
 				System.out.println("Connected");
 			try {
-			stmt =con.createStatement();
-			String query="select PASSWORD FROM users where NAME='"+usrName+"';";    	
-			ResultSet rs = stmt.executeQuery(query);
+			String query="select PASSWORD FROM users where NAME=?";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, usrName);
+			ResultSet rs = stmt.executeQuery();
 			 String res = null;
 			  if (rs.next()) {
 		           res = rs.getString(1);
@@ -103,11 +103,14 @@ public class Login  {
 			{
 				   lblMessage.setText("Redirecting...");
 		           lblMessage.setTextFill(Color.GREEN);
-		           stmt=con.createStatement();
 		           LocalDate localDate = LocalDate.now();
 		           LocalTime localTime = LocalTime.now();
-		           String query1="INSERT INTO login(NAME,DATE,TIME)"+" VALUES ('"+usrName+"','"+localDate.toString()+"','"+localTime.toString()+"')";
-		           stmt.executeUpdate(query1);
+		           String query1="INSERT INTO login(NAME,DATE,TIME) VALUES (?,?,?)";
+		           PreparedStatement stmt1 = con.prepareStatement(query1);
+		           stmt1.setString(1, usrName);
+		           stmt1.setString(2, localDate.toString());
+		           stmt1.setString(3, localTime.toString());
+		           stmt1.executeUpdate();
 		           new HomePage(login);
 			}
 			else{
