@@ -1,7 +1,7 @@
 package application;
 
 import java.sql.Connection;
-import java.sql.Statement;
+import java.sql.PreparedStatement;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -54,13 +54,18 @@ public add_user(Stage add,String db_name)
 			int str5=Integer.parseInt(tf5.getText());
 			String str6=pf.getText();
 			Connection con=Connect.connect();
-			Statement stmt=null;
 			if (con!=null)
 				System.out.println("Connected");
 			try {
-			stmt =con.createStatement();
-			String query="INSERT INTO users(NAME,DOB,ADDRESS,PHONE,SALARY,PASSWORD)"+"VALUES ('"+str1+"','"+datePicker.getValue()+"','"+str3+"','"+str4+"','"+str5+"','"+str6+"')";
-			stmt.executeUpdate(query);	  	
+			String query="INSERT INTO users(NAME,DOB,ADDRESS,PHONE,SALARY,PASSWORD) VALUES (?,?,?,?,?,?)";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, str1);
+			stmt.setString(2, datePicker.getValue() == null ? null : datePicker.getValue().toString());
+			stmt.setString(3, str3);
+			stmt.setString(4, str4);
+			stmt.setInt(5, str5);
+			stmt.setString(6, str6);
+			stmt.executeUpdate();	  	
 			new Show(add,"users");
 			}	
 			catch(Exception e) {
