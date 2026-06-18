@@ -2,6 +2,7 @@ package application;
 
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -75,13 +76,18 @@ public add_drugs(Stage add,String db_name)
 			String str5=(String) comboBox1.getValue();
 			String str6=tf6.getText();
 			Connection con=Connect.connect();
-			Statement stmt=null;
 			if (con!=null)
 				System.out.println("Connected");
 			try {
-			stmt =con.createStatement();
-			String query="INSERT INTO drugs(NAME,TYPE,COST_PRICE,SELLING_PRICE,COMPANY_NAME,QUANTITY)"+ "VALUES ('"+str1+"','"+str2+"','"+str3+"','"+str4+"','"+str5+"','"+str6+"')";
-			stmt.executeUpdate(query);	  	
+			String query="INSERT INTO drugs(NAME,TYPE,COST_PRICE,SELLING_PRICE,COMPANY_NAME,QUANTITY) VALUES (?,?,?,?,?,?)";
+			PreparedStatement stmt = con.prepareStatement(query);
+			stmt.setString(1, str1);
+			stmt.setString(2, str2);
+			stmt.setString(3, str3);
+			stmt.setString(4, str4);
+			stmt.setString(5, str5);
+			stmt.setString(6, str6);
+			stmt.executeUpdate();	  	
 			new Show(add,"drugs");
 			}	
 			catch(Exception e) {
