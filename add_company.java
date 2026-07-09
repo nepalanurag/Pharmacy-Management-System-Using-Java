@@ -1,6 +1,7 @@
 package application;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -49,9 +50,13 @@ public add_company(Stage add,String db_name)
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			String query="INSERT INTO company (NAME, ADDRESS, PHONE)"+ "VALUES ('"+str1+"','"+str2+"','"+str3+"')";
+			String query="INSERT INTO company (NAME, ADDRESS, PHONE) VALUES (?,?,?)";
 			try {
-				stmt.executeUpdate(query);
+				PreparedStatement ps = con.prepareStatement(query);
+				ps.setString(1, str1);
+				ps.setString(2, str2);
+				ps.setString(3, str3);
+				ps.executeUpdate();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
