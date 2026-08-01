@@ -1,6 +1,7 @@
 package application;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -88,17 +89,13 @@ public new_purchase(Stage add,String db_name)
 			 int stk=0;
 			 int pri=0;
 			 String type=null;
-			 Statement stmt = null;
-			try {
-				stmt = Connect.connect().createStatement();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-				String query="select Type,Quantity,COST_PRICE FROM drugs where NAME='"+str1+"';";    	
+			 Connection conn = Connect.connect();
+				String query="select Type,Quantity,COST_PRICE FROM drugs where NAME=?";
 				ResultSet rs = null;
 				try {
-					rs = stmt.executeQuery(query);
+					PreparedStatement ps = conn.prepareStatement(query);
+					ps.setString(1, str1);
+					rs = ps.executeQuery();
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -115,9 +112,12 @@ public new_purchase(Stage add,String db_name)
 					e1.printStackTrace();
 				}
 			 stk=res+str4;
-			 String query2="Update drugs set quantity='"+stk+"' where NAME='"+str1+"';";
+			 String query2="Update drugs set quantity=? where NAME=?";
 			 try {
-				stmt.executeUpdate(query2);
+				PreparedStatement ps2 = conn.prepareStatement(query2);
+				ps2.setInt(1, stk);
+				ps2.setString(2, str1);
+				ps2.executeUpdate();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -125,13 +125,18 @@ public new_purchase(Stage add,String db_name)
 			
 			int amt= Integer.parseInt((tf4.getText()))*pri;
 			Connection con=Connect.connect();
-			Statement stmt1=null;
 			if (con!=null)
 				System.out.println("Connected");
 			try {
-			stmt1 =con.createStatement();
-			String query1="INSERT INTO purchase(NAME,TYPE,COMPANY_NAME,QUANTITY,PRICE,AMOUNT)"+ "VALUES ('"+str1+"','"+type+"','"+str3+"','"+str4+"','"+pri+"','"+amt+"')";
-			stmt1.executeUpdate(query1);	
+			String query1="INSERT INTO purchase(NAME,TYPE,COMPANY_NAME,QUANTITY,PRICE,AMOUNT) VALUES (?,?,?,?,?,?)";
+			PreparedStatement stmt1 = con.prepareStatement(query1);
+			stmt1.setString(1, str1);
+			stmt1.setString(2, type);
+			stmt1.setString(3, str3);
+			stmt1.setInt(4, str4);
+			stmt1.setInt(5, pri);
+			stmt1.setInt(6, amt);
+			stmt1.executeUpdate();	
 			new Show(add,"purchase");
 			}	
 			catch(Exception e) {
