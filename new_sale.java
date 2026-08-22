@@ -2,6 +2,7 @@ package application;
 
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -71,17 +72,13 @@ public new_sale(Stage add,String db_name)
 			int str4=Integer.parseInt(tf4.getText());
 			 int stk=0;
 			 String type=null;
-			 Statement stmt = null;
-			try {
-				stmt = Connect.connect().createStatement();
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-				String query="select Type,Quantity,SELLING_PRICE FROM drugs where NAME='"+str2+"';";    	
+			 Connection conn = Connect.connect();
+				String query="select Type,Quantity,SELLING_PRICE FROM drugs where NAME=?";
 				ResultSet rs = null;
 				try {
-					rs = stmt.executeQuery(query);
+					PreparedStatement ps = conn.prepareStatement(query);
+					ps.setString(1, str2);
+					rs = ps.executeQuery();
 				} catch (SQLException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -104,9 +101,12 @@ public new_sale(Stage add,String db_name)
 				  }
 				  else {
 			 stk=res-str4;
-			 String query2="Update drugs set quantity='"+stk+"' where NAME='"+str2+"';";
+			 String query2="Update drugs set quantity=? where NAME=?";
 			 try {
-				stmt.executeUpdate(query2);
+				PreparedStatement ps2 = conn.prepareStatement(query2);
+				ps2.setInt(1, stk);
+				ps2.setString(2, str2);
+				ps2.executeUpdate();
 			} catch (SQLException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -116,25 +116,21 @@ public new_sale(Stage add,String db_name)
 			lblmessage.setText("Amount to be paid:"+amt);
 			lblmessage.setTextFill(Color.BLUE);
 			Connection con=Connect.connect();
-			Statement stmt1 = null;
-			try {
-				stmt1 = con.createStatement();
-			} catch (SQLException e3) {
-				// TODO Auto-generated catch block
-				e3.printStackTrace();
-			}
 			if (con!=null)
 				System.out.println("Connected");
 		
+			String query1="INSERT INTO history_sales(USER_NAME,NAME,TYPE,QUANTITY,PRICE,AMOUNT,DATE,TIME) VALUES (?,?,?,?,?,?,?,?)";
 			try {
-				stmt1 =con.createStatement();
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String query1="INSERT INTO history_sales(USER_NAME,NAME,TYPE,QUANTITY,PRICE,AMOUNT,DATE,TIME)"+"VALUES ('"+Login.usrName+"','"+str2+"','"+type+"','"+str4+"','"+str5+"','"+amt+"','"+LocalDate.now().toString()+"','"+LocalTime.now().toString()+"')";
-			try {
-				stmt1.executeUpdate(query1);
+				PreparedStatement stmt1 = con.prepareStatement(query1);
+				stmt1.setString(1, Login.usrName);
+				stmt1.setString(2, str2);
+				stmt1.setString(3, type);
+				stmt1.setInt(4, str4);
+				stmt1.setInt(5, str5);
+				stmt1.setInt(6, amt);
+				stmt1.setString(7, LocalDate.now().toString());
+				stmt1.setString(8, LocalTime.now().toString());
+				stmt1.executeUpdate();
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
